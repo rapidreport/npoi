@@ -160,6 +160,31 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
 
         private double tintField;
 
+        public CT_Color Copy()
+        {
+            CT_Color obj = new CT_Color();
+            if (autoSpecified)
+            {
+                obj.auto = auto;
+            }
+            if (indexedSpecified)
+            {
+                obj.indexed = indexed;
+            }
+            if (rgbSpecified)
+            {
+                obj.SetRgb(GetRgb());
+            }
+            if (themeSpecified)
+            {
+                obj.theme = theme;
+            }
+            if (tintSpecified)
+            {
+                obj.tint = tint;
+            }
+            return obj;
+        }
 
         #region auto
         [XmlAttribute]

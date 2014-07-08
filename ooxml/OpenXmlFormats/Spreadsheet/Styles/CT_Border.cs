@@ -128,15 +128,42 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
         public CT_Border Copy()
         {
             CT_Border obj = new CT_Border();
-            obj.bottomField = this.bottomField;
-            obj.topField = this.topField;
-            obj.rightField = this.rightField;
-            obj.leftField = this.leftField;
-            obj.horizontalField = this.horizontalField;
-            obj.verticalField = this.verticalField;
-            obj.outlineField = this.outlineField;
+            if (bottomField != null)
+            {
+                obj.bottomField = bottomField.Copy();
+            }
+            if (topField != null)
+            {
+                obj.topField = topField.Copy();
+            }
+            if (rightField != null)
+            {
+                obj.rightField = rightField.Copy();
+            }
+            if (leftField != null)
+            {
+                obj.leftField = leftField.Copy();
+            }
+            if (horizontalField != null)
+            {
+                obj.horizontalField = horizontalField.Copy();
+            }
+            if (verticalField != null)
+            {
+                obj.verticalField = verticalField.Copy();
+            }
+            if (diagonalField != null)
+            {
+                obj.diagonalField = diagonalField.Copy();
+            }
+            obj.diagonalUpField = diagonalUpField;
+            obj.diagonalUpSpecified = diagonalUpSpecified;
+            obj.diagonalDown = diagonalDown;
+            obj.diagonalDownSpecified = diagonalDownSpecified;
+            obj.outline = this.outline;
             return obj;
         }
+
         public CT_BorderPr AddNewDiagonal()
         {
             if (this.diagonalField == null)

@@ -1013,16 +1013,11 @@ namespace NPOI.XSSF.UserModel
                 int idx = (int)_cellXf.borderId;
                 XSSFCellBorder cf = _stylesSource.GetBorderAt(idx);
 
-                ctBorder = (CT_Border)cf.GetCTBorder();
+                ctBorder = (CT_Border)cf.GetCTBorder().Copy();
             }
             else
             {
                 ctBorder = new CT_Border();
-                ctBorder.AddNewLeft();
-                ctBorder.AddNewRight();
-                ctBorder.AddNewTop();
-                ctBorder.AddNewBottom();
-                ctBorder.AddNewDiagonal();
             }
             return ctBorder;
         }
