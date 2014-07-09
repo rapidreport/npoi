@@ -1274,11 +1274,11 @@ namespace NPOI.XSSF.UserModel
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetCTCellAlignment().shrinkToFit;
             }
             set
             {
-                throw new NotImplementedException();
+                this.GetCTCellAlignment().shrinkToFit = value;
             }
         }
 
