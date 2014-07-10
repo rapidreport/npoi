@@ -59,63 +59,60 @@ namespace NPOI.XSSF.UserModel
          */
         internal static CT_Shape Prototype()
         {
-            if (prototype == null)
-            {
-                CT_Shape shape = new CT_Shape();
+            CT_Shape shape = new CT_Shape();
+                
+            CT_ShapeNonVisual nv = shape.AddNewNvSpPr();
+            NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_NonVisualDrawingProps nvp = nv.AddNewCNvPr();
+            nvp.id = (1);
+            nvp.name = ("Shape 1");
+            nv.AddNewCNvSpPr();
 
+            NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_ShapeProperties sp = shape.AddNewSpPr();
+            NPOI.OpenXmlFormats.Dml.CT_Transform2D t2d = sp.AddNewXfrm();
+            CT_PositiveSize2D p1 = t2d.AddNewExt();
+            p1.cx = (0);
+            p1.cy = (0);
+            CT_Point2D p2 = t2d.AddNewOff();
+            p2.x = (0);
+            p2.y = (0);
 
-                CT_ShapeNonVisual nv = shape.AddNewNvSpPr();
-                NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_NonVisualDrawingProps nvp = nv.AddNewCNvPr();
-                nvp.id = (1);
-                nvp.name = ("Shape 1");
-                nv.AddNewCNvSpPr();
+            CT_PresetGeometry2D geom = sp.AddNewPrstGeom();
+            geom.prst = (ST_ShapeType.rect);
+            geom.AddNewAvLst();
 
-                NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_ShapeProperties sp = shape.AddNewSpPr();
-                NPOI.OpenXmlFormats.Dml.CT_Transform2D t2d = sp.AddNewXfrm();
-                CT_PositiveSize2D p1 = t2d.AddNewExt();
-                p1.cx = (0);
-                p1.cy = (0);
-                CT_Point2D p2 = t2d.AddNewOff();
-                p2.x = (0);
-                p2.y = (0);
+            NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_ShapeStyle style = shape.AddNewStyle();
+            CT_SchemeColor scheme = style.AddNewLnRef().AddNewSchemeClr();
+            scheme.val = (ST_SchemeColorVal.accent1);
+            scheme.AddNewShade().val = 50000;
+            style.lnRef.idx = (2);
 
-                CT_PresetGeometry2D geom = sp.AddNewPrstGeom();
-                geom.prst = (ST_ShapeType.rect);
-                geom.AddNewAvLst();
+            CT_StyleMatrixReference Fillref = style.AddNewFillRef();
+            Fillref.idx = (1);
+            Fillref.AddNewSchemeClr().val = (ST_SchemeColorVal.accent1);
 
-                NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_ShapeStyle style = shape.AddNewStyle();
-                CT_SchemeColor scheme = style.AddNewLnRef().AddNewSchemeClr();
-                scheme.val = (ST_SchemeColorVal.accent1);
-                scheme.AddNewShade().val = 50000;
-                style.lnRef.idx = (2);
+            CT_StyleMatrixReference effectRef = style.AddNewEffectRef();
+            effectRef.idx = (0);
+            effectRef.AddNewSchemeClr().val = (ST_SchemeColorVal.accent1);
 
-                CT_StyleMatrixReference Fillref = style.AddNewFillRef();
-                Fillref.idx = (1);
-                Fillref.AddNewSchemeClr().val = (ST_SchemeColorVal.accent1);
+            CT_FontReference fontRef = style.AddNewFontRef();
+            fontRef.idx = (ST_FontCollectionIndex.minor);
+            fontRef.AddNewSchemeClr().val = (ST_SchemeColorVal.lt1);
 
-                CT_StyleMatrixReference effectRef = style.AddNewEffectRef();
-                effectRef.idx = (0);
-                effectRef.AddNewSchemeClr().val = (ST_SchemeColorVal.accent1);
+            NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_TextBody body = shape.AddNewTxBody();
+            CT_TextBodyProperties bodypr = body.AddNewBodyPr();
+            bodypr.anchor = (ST_TextAnchoringType.ctr);
+            bodypr.rtlCol = (false);
+            CT_TextParagraph p = body.AddNewP();
 
-                CT_FontReference fontRef = style.AddNewFontRef();
-                fontRef.idx = (ST_FontCollectionIndex.minor);
-                fontRef.AddNewSchemeClr().val = (ST_SchemeColorVal.lt1);
+            p.AddNewPPr().algn = (ST_TextAlignType.ctr);
+            CT_TextCharacterProperties endPr = p.AddNewEndParaRPr();
+            endPr.lang = ("en-US");
+            endPr.sz = (1100);
 
-                NPOI.OpenXmlFormats.Dml.Spreadsheet.CT_TextBody body = shape.AddNewTxBody();
-                CT_TextBodyProperties bodypr = body.AddNewBodyPr();
-                bodypr.anchor = (ST_TextAnchoringType.ctr);
-                bodypr.rtlCol = (false);
-                CT_TextParagraph p = body.AddNewP();
+            body.AddNewLstStyle();
 
-                p.AddNewPPr().algn = (ST_TextAlignType.ctr);
-                CT_TextCharacterProperties endPr = p.AddNewEndParaRPr();
-                endPr.lang = ("en-US");
-                endPr.sz = (1100);
+            prototype = shape;
 
-                body.AddNewLstStyle();
-
-                prototype = shape;
-            }
             return prototype;
         }
 
