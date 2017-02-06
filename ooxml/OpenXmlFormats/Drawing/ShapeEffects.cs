@@ -2135,6 +2135,56 @@ namespace NPOI.OpenXmlFormats.Dml
             this.srgbClrField = new CT_SRgbColor();
             return srgbClrField;
         }
+
+        public bool IsSetHslClr()
+        {
+            return this.hslClrField != null;
+        }
+
+        public bool IsSetPrstClr()
+        {
+            return this.prstClrField != null;
+        }
+
+        public bool IsSetSchemeClr()
+        {
+            return this.schemeClrField != null;
+        }
+
+        public bool IsSetScrgbClr()
+        {
+            return this.scrgbClrField != null;
+        }
+
+        public bool IsSetSysClr()
+        {
+            return this.sysClrField != null;
+        }
+
+        public void UnsetHslClr()
+        {
+            this.hslClrField = null;
+        }
+
+        public void UnsetPrstClr()
+        {
+            this.prstClrField = null;
+        }
+
+        public void UnsetSchemeClr()
+        {
+            this.schemeClrField = null;
+        }
+
+        public void UnsetScrgbClr()
+        {
+            this.scrgbClrField = null;
+        }
+
+        public void UnsetSysClr()
+        {
+            this.sysClrField = null;
+        }
     }
 
     [Serializable]
@@ -2369,7 +2419,7 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write(string.Format("<{0}", nodeName));
             XmlHelper.WriteAttribute(sw, "pos", this.pos);
             sw.Write(">");
             if (this.scrgbClr != null)
@@ -2384,7 +2434,7 @@ namespace NPOI.OpenXmlFormats.Dml
                 this.schemeClr.Write(sw, "schemeClr");
             if (this.prstClr != null)
                 this.prstClr.Write(sw, "prstClr");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write(string.Format("</{0}>", nodeName));
         }
 
         [XmlElement(Order = 0)]

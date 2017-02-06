@@ -1,14 +1,61 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace NPOI.OpenXml4Net.Util
 {
     public static class XmlHelper
     {
+        public static string GetEnumValue(Enum e)
+        {
+            // Get the Type of the enum
+            Type t = e.GetType();
+
+            // Get the FieldInfo for the member field with the enums name
+            FieldInfo info = t.GetField(e.ToString("G"));
+
+            // Check to see if the XmlEnumAttribute is defined on this field
+            if (!info.IsDefined(typeof(XmlEnumAttribute), false))
+            {
+                // If no XmlEnumAttribute then return the string version of the enum.
+                return e.ToString("G");
+            }
+
+            // Get the XmlEnumAttribute
+            object[] o = info.GetCustomAttributes(typeof(XmlEnumAttribute), false);
+            XmlEnumAttribute att = (XmlEnumAttribute)o[0];
+            return att.Name;
+        }
+
+        public static string GetXmlAttrNameFromEnumValue<T>(T pEnumVal)
+        {
+            // http://stackoverflow.com/q/3047125/194717
+            Type type = pEnumVal.GetType();
+            FieldInfo info = type.GetField(Enum.GetName(typeof(T), pEnumVal));
+            XmlEnumAttribute att = (XmlEnumAttribute)info.GetCustomAttributes(typeof(XmlEnumAttribute), false)[0];
+            //If there is an xmlattribute defined, return the name
+
+            return att.Name;
+        }
+        public static T GetEnumValueFromString<T>(string value)
+        {
+            // http://stackoverflow.com/a/3073272/194717
+            foreach (object o in System.Enum.GetValues(typeof(T)))
+            {
+                T enumValue = (T)o;
+                if (GetXmlAttrNameFromEnumValue<T>(enumValue).Equals(value, StringComparison.OrdinalIgnoreCase))
+                {
+                    return (T)o;
+                }
+            }
+
+            throw new ArgumentException("No XmlEnumAttribute code exists for type " + typeof(T).ToString() + " corresponding to value of " + value);
+        }
         public static int ReadInt(XmlAttribute attr)
         {
             if (attr == null)
@@ -170,25 +217,41 @@ namespace NPOI.OpenXml4Net.Util
                 return false;
             }
         }
+        public static DateTime? ReadDateTime(XmlAttribute attr)
+        {
+            if (attr == null)
+                return null;
+            //TODO make this stable.
+            return DateTime.Parse(attr.Value);
+        }
+
         public static string ExcelEncodeString(string t)
         {
             StringWriter sw = new StringWriter();
-            if (Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
-            {
-                Match match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
-                int indexAdd = 0;
-                while (match.Success)
-                {
-                    t = t.Insert(match.Index + indexAdd, "_x005F");
-                    indexAdd += 6;
-                    match = match.NextMatch();
-                }
-            }
+            //poi dose not add prefix _x005f before _x????_ char.
+            //if (Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
+            //{
+            //    Match match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
+            //    int indexAdd = 0;
+            //    while (match.Success)
+            //    {
+            //        t = t.Insert(match.Index + indexAdd, "_x005F");
+            //        indexAdd += 6;
+            //        match = match.NextMatch();
+            //    }
+            //}
             for (int i = 0; i < t.Length; i++)
             {
                 if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
                 {
-                    sw.Write("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
+                    //[0x00-0x0a]-[\r\n\t]
+                    //poi replace those chars with ?
+                    sw.Write('?');
+                    //sw.Write("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
+                }
+                else if (t[i] == '\uFFFE')
+                {
+                    sw.Write('?');
                 }
                 else
                 {
@@ -232,7 +295,7 @@ namespace NPOI.OpenXml4Net.Util
         }
         public static string EncodeXml(string xml)
         {
-            return xml.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("'", "&apos;");
+            return xml.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");//.Replace("'", "&apos;");
         }
         public static void WriteAttribute(StreamWriter sw, string attributeName, bool value)
         {
@@ -286,12 +349,23 @@ namespace NPOI.OpenXml4Net.Util
         {
             WriteAttribute(sw, attributeName, (int)value, false);
         }
+
+        public static void WriteAttribute(StreamWriter sw, string attributeName, DateTime? value)
+        {
+            if (value == null)
+                return;
+            WriteAttribute(sw, attributeName, value.ToString(), false);
+            //how to write xsd:datetime data
+            throw new NotImplementedException();
+        }
         public static void LoadXmlSafe(XmlDocument xmlDoc, Stream stream)
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             //Disable entity parsing (to aviod xmlbombs, External Entity Attacks etc).
+            settings.XmlResolver = null;
             settings.ProhibitDtd = true;
-
+            //settings.MaxCharactersFromEntities = 4096;
+            //settings.ValidationType = ValidationType.DTD;
             XmlReader reader = XmlReader.Create(stream, settings);
             xmlDoc.Load(reader);
         }

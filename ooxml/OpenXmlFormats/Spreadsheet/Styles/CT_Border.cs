@@ -128,42 +128,22 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
         public CT_Border Copy()
         {
             CT_Border obj = new CT_Border();
-            if (bottomField != null)
-            {
-                obj.bottomField = bottomField.Copy();
-            }
-            if (topField != null)
-            {
-                obj.topField = topField.Copy();
-            }
-            if (rightField != null)
-            {
-                obj.rightField = rightField.Copy();
-            }
-            if (leftField != null)
-            {
-                obj.leftField = leftField.Copy();
-            }
-            if (horizontalField != null)
-            {
-                obj.horizontalField = horizontalField.Copy();
-            }
-            if (verticalField != null)
-            {
-                obj.verticalField = verticalField.Copy();
-            }
-            if (diagonalField != null)
-            {
-                obj.diagonalField = diagonalField.Copy();
-            }
-            obj.diagonalUpField = diagonalUpField;
-            obj.diagonalUpSpecified = diagonalUpSpecified;
-            obj.diagonalDown = diagonalDown;
-            obj.diagonalDownSpecified = diagonalDownSpecified;
-            obj.outline = this.outline;
+            obj.bottomField = this.bottomField == null ? null : this.bottomField.Copy();
+            obj.topField = this.topField == null ? null : this.topField.Copy();
+            obj.rightField = this.rightField == null ? null : this.rightField.Copy();
+            obj.leftField = this.leftField == null ? null : this.leftField.Copy();
+
+            obj.diagonalField = this.diagonalField == null ? null : this.diagonalField.Copy();
+            obj.verticalField = this.verticalField == null ? null : this.verticalField.Copy();
+            obj.horizontalField = this.horizontalField == null ? null : this.horizontalField.Copy();
+
+            obj.diagonalUpField = this.diagonalUpField;
+            obj.diagonalUpFieldSpecified = this.diagonalUpFieldSpecified;
+            obj.diagonalDownField = this.diagonalDownField;
+            obj.diagonalDownFieldSpecified = this.diagonalDownFieldSpecified;
+            obj.outlineField = this.outlineField;
             return obj;
         }
-
         public CT_BorderPr AddNewDiagonal()
         {
             if (this.diagonalField == null)
@@ -191,7 +171,7 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
         {
             this.topField = null;
         }
-        public void unsetBottom()
+        public void UnsetBottom()
         {
             this.bottomField = null;
         }

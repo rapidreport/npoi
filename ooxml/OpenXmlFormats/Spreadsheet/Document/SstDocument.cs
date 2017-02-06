@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NPOI.OpenXml4Net.Util;
+using System.Collections.Generic;
 using System.IO;
 using System.Security;
 using System.Text;
@@ -36,6 +37,9 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
             {
                 SstDocument sstDoc=new SstDocument();
                 sstDoc.AddNewSst();
+                CT_Sst sst = sstDoc.GetSst();
+                sst.count = XmlHelper.ReadInt(xml.DocumentElement.Attributes["count"]);
+                sst.uniqueCount = XmlHelper.ReadInt(xml.DocumentElement.Attributes["uniqueCount"]);
 
                 XmlNodeList nl = xml.SelectNodes("//d:sst/d:si", namespaceManager);
                 if (nl != null)
@@ -56,7 +60,7 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
 
         public void Save(Stream stream)
         {
-            StreamWriter sw = new StreamWriter(stream);
+            StreamWriter sw = new StreamWriter(stream, Encoding.UTF8);
             sw.Write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"{0}\" uniqueCount=\"{1}\">", this.GetSst().count, this.GetSst().uniqueCount);
             foreach (CT_Rst ssi in this.GetSst().si)
             {

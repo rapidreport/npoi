@@ -21,6 +21,10 @@ using NPOI.SS.UserModel;
 using NPOI.OpenXmlFormats.Spreadsheet;
 using System;
 using NPOI.XSSF.Model;
+using NPOI.SS.Util;
+using NPOI.SS;
+using TestCases.HSSF;
+using System.Text;
 namespace NPOI.XSSF.UserModel
 {
 
@@ -28,7 +32,7 @@ namespace NPOI.XSSF.UserModel
      * @author Yegor Kozlov
      */
     [TestFixture]
-    public class TestXSSFCell : BaseTestCell
+    public class TestXSSFCell : BaseTestXCell
     {
 
         public TestXSSFCell()
@@ -184,21 +188,6 @@ namespace NPOI.XSSF.UserModel
             Assert.AreEqual(null, cell.CellStyle);
         }
 
-        /**
-         * Cell with the formula that returns error must return error code(There was
-         * an problem that cell could not return error value form formula cell).
-         */
-        [Test]
-        public void TestGetErrorCellValueFromFormulaCell()
-        {
-            XSSFWorkbook wb = new XSSFWorkbook();
-            ISheet sheet = wb.CreateSheet();
-            IRow row = sheet.CreateRow(0);
-            ICell cell = row.CreateCell(0);
-            cell.SetCellFormula("SQRT(-1)");
-            wb.GetCreationHelper().CreateFormulaEvaluator().EvaluateFormulaCell(cell);
-            Assert.AreEqual(36, cell.ErrorCellValue);
-        }
         [Test]
         public void TestIsMergedCell()
         {
@@ -314,6 +303,198 @@ namespace NPOI.XSSF.UserModel
                     }
 
                 }
+            }
+        }
+
+        [Test]
+        public void Test56170()
+        {
+            IWorkbook wb = XSSFTestDataSamples.OpenSampleWorkbook("56170.xlsx");
+            XSSFSheet sheet = (XSSFSheet)wb.GetSheetAt(0);
+
+            IWorkbook wbRead = XSSFTestDataSamples.WriteOutAndReadBack(wb);
+            ICell cell;
+
+            // add some contents to table so that the table will need expansion
+            IRow row = sheet.GetRow(0);
+            wbRead = XSSFTestDataSamples.WriteOutAndReadBack(wb);
+            cell = row.CreateCell(0);
+            wbRead = XSSFTestDataSamples.WriteOutAndReadBack(wb);
+            cell.SetCellValue("demo1");
+            wbRead = XSSFTestDataSamples.WriteOutAndReadBack(wb);
+            cell = row.CreateCell(1);
+            wbRead = XSSFTestDataSamples.WriteOutAndReadBack(wb);
+            cell.SetCellValue("demo2");
+            wbRead = XSSFTestDataSamples.WriteOutAndReadBack(wb);
+            cell = row.CreateCell(2);
+            wbRead = XSSFTestDataSamples.WriteOutAndReadBack(wb);
+            cell.SetCellValue("demo3");
+
+            wbRead = XSSFTestDataSamples.WriteOutAndReadBack(wb);
+
+            row = sheet.GetRow(1);
+            cell = row.CreateCell(0);
+            cell.SetCellValue("demo1");
+            cell = row.CreateCell(1);
+            cell.SetCellValue("demo2");
+            cell = row.CreateCell(2);
+            cell.SetCellValue("demo3");
+
+            wbRead = XSSFTestDataSamples.WriteOutAndReadBack(wb);
+
+            // expand table
+            XSSFTable table = sheet.GetTables()[0];
+            CellReference startRef = table.GetStartCellReference();
+            CellReference endRef = table.GetEndCellReference();
+            table.GetCTTable().@ref = (new CellRangeAddress(startRef.Row, 1, startRef.Col, endRef.Col).FormatAsString());
+
+            wbRead = XSSFTestDataSamples.WriteOutAndReadBack(wb);
+            Assert.IsNotNull(wbRead);
+
+            /*FileOutputStream stream = new FileOutputStream("c:\\temp\\output.xlsx");
+            workbook.Write(stream);
+            stream.Close();*/
+        }
+
+        [Test]
+        public void Test56170Reproduce()
+        {
+            IWorkbook wb = new XSSFWorkbook();
+            ISheet sheet = wb.CreateSheet();
+            IRow row = sheet.CreateRow(0);
+
+            // by creating Cells out of order we trigger the handling in onDocumentWrite()
+            ICell cell1 = row.CreateCell(1);
+            ICell cell2 = row.CreateCell(0);
+
+            validateRow(row);
+
+            validateRow(row);
+
+            // once again with removing one cell
+            row.RemoveCell(cell1);
+
+            validateRow(row);
+
+            // once again with removing one cell
+            row.RemoveCell(cell1);
+
+            // now check again
+            validateRow(row);
+
+            // once again with removing one cell
+            row.RemoveCell(cell2);
+
+            // now check again
+            validateRow(row);
+        }
+
+        private void validateRow(IRow row)
+        {
+            // trigger bug with CArray handling
+            ((XSSFRow)row).OnDocumentWrite();
+
+            foreach (ICell cell in row)
+            {
+                cell.ToString();
+            }
+        }
+
+        [Test]
+        public void TestBug56644ReturnNull()
+        {
+            XSSFWorkbook wb = XSSFTestDataSamples.OpenSampleWorkbook("56644.xlsx");
+            try
+            {
+                wb.MissingCellPolicy = (MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                ISheet sheet = wb.GetSheet("samplelist");
+                IRow row = sheet.GetRow(20);
+                row.CreateCell(2);
+            }
+            finally
+            {
+                wb.Close();
+            }
+        }
+
+        [Test]
+        public void TestBug56644ReturnBlank()
+        {
+            XSSFWorkbook wb = XSSFTestDataSamples.OpenSampleWorkbook("56644.xlsx");
+            try
+            {
+                wb.MissingCellPolicy = (MissingCellPolicy.RETURN_NULL_AND_BLANK);
+                ISheet sheet = wb.GetSheet("samplelist");
+                IRow row = sheet.GetRow(20);
+                row.CreateCell(2);
+            }
+            finally
+            {
+                wb.Close();
+            }
+        }
+
+        [Test]
+        public void TestBug56644CreateBlank()
+        {
+            XSSFWorkbook wb = XSSFTestDataSamples.OpenSampleWorkbook("56644.xlsx");
+            try
+            {
+                wb.MissingCellPolicy = (MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                ISheet sheet = wb.GetSheet("samplelist");
+                IRow row = sheet.GetRow(20);
+                row.CreateCell(2);
+            }
+            finally
+            {
+                wb.Close();
+            }
+        }
+        [Test]
+        public void TestEncodingbeloAscii()
+        {
+            StringBuilder sb = new StringBuilder();
+            // test all possible characters
+            for (int i = 0; i < char.MaxValue; i++)
+            {
+                sb.Append((char)i);
+            }
+
+            String strAll = sb.ToString();
+
+            // process in chunks as we have a limit on size of column now
+            int pos = 0;
+            while (pos < strAll.Length)
+            {
+                String str = strAll.Substring(pos, Math.Min(strAll.Length, pos + SpreadsheetVersion.EXCEL2007.MaxTextLength)- pos);
+
+                IWorkbook wb = HSSFITestDataProvider.Instance.CreateWorkbook();
+                ICell cell = wb.CreateSheet().CreateRow(0).CreateCell(0);
+
+                IWorkbook xwb = XSSFITestDataProvider.instance.CreateWorkbook();
+                ICell xCell = xwb.CreateSheet().CreateRow(0).CreateCell(0);
+
+                //IWorkbook swb = SXSSFITestDataProvider.instance.CreateWorkbook();
+                //ICell sCell = swb.CreateSheet().CreateRow(0).CreateCell(0);
+
+                cell.SetCellValue(str);
+                Assert.AreEqual(str, cell.StringCellValue);
+                xCell.SetCellValue(str);
+                Assert.AreEqual(str, xCell.StringCellValue);
+                //sCell.SetCellValue(str);
+                //Assert.AreEqual(str, sCell.StringCellValue);
+
+                IWorkbook wbBack = HSSFITestDataProvider.Instance.WriteOutAndReadBack(wb);
+                IWorkbook xwbBack = XSSFITestDataProvider.instance.WriteOutAndReadBack(xwb);
+                //IWorkbook swbBack = SXSSFITestDataProvider.instance.WriteOutAndReadBack(swb);
+                cell = wbBack.GetSheetAt(0).CreateRow(0).CreateCell(0);
+                xCell = xwbBack.GetSheetAt(0).CreateRow(0).CreateCell(0);
+                //sCell = swbBack.GetSheetAt(0).CreateRow(0).CreateCell(0);
+
+                Assert.AreEqual(cell.StringCellValue, xCell.StringCellValue);
+                //Assert.AreEqual(cell.StringCellValue, sCell.StringCellValue);
+
+                pos += SpreadsheetVersion.EXCEL97.MaxTextLength;
             }
         }
     }

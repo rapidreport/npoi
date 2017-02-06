@@ -39,7 +39,7 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
 
         private bool horizontalFieldSpecified;
 
-        private ST_VerticalAlignment verticalField;
+        private ST_VerticalAlignment verticalField = ST_VerticalAlignment.bottom;
 
         private bool verticalFieldSpecified;
 
@@ -94,9 +94,10 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
         internal void Write(StreamWriter sw, string nodeName)
         {
             sw.Write(string.Format("<{0}", nodeName));
-            if(this.horizontal!= ST_HorizontalAlignment.general)
+            if(this.horizontal != ST_HorizontalAlignment.general)
                 XmlHelper.WriteAttribute(sw, "horizontal", this.horizontal.ToString());
-            XmlHelper.WriteAttribute(sw, "vertical", this.vertical.ToString());
+            if (this.vertical != ST_VerticalAlignment.bottom)
+                XmlHelper.WriteAttribute(sw, "vertical", this.vertical.ToString());
             XmlHelper.WriteAttribute(sw, "textRotation", this.textRotation);
             if(this.wrapText)
                 XmlHelper.WriteAttribute(sw, "wrapText", this.wrapText);
@@ -146,7 +147,7 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
             }
         }
         [XmlAttribute]
-        [DefaultValue(ST_VerticalAlignment.top)]
+        [DefaultValue(ST_VerticalAlignment.bottom)]
         public ST_VerticalAlignment vertical
         {
             get
@@ -353,6 +354,21 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
             {
                 this.readingOrderFieldSpecified = value;
             }
+        }
+
+        internal CT_CellAlignment Copy()
+        {
+            CT_CellAlignment align = new CT_CellAlignment();
+            align.horizontal = this.horizontal;
+            align.vertical = this.vertical;
+            align.wrapText = this.wrapText;
+            align.shrinkToFit = this.shrinkToFit;
+            align.textRotation = this.textRotation;
+            align.justifyLastLine = this.justifyLastLine;
+            align.readingOrder = this.readingOrder;
+            align.relativeIndent = this.relativeIndent;
+            align.indent = this.indent;
+            return align;
         }
     }
 }

@@ -979,7 +979,7 @@ namespace NPOI.OpenXmlFormats.Dml
 
         internal void Write(StreamWriter sw, string nodeName)
         {
-            sw.Write(string.Format("<a:{0}", nodeName));
+            sw.Write(string.Format("<xdr:{0}", nodeName));
             sw.Write(">");
             if (this.cxnSpLocks != null)
                 this.cxnSpLocks.Write(sw, "cxnSpLocks");
@@ -989,7 +989,7 @@ namespace NPOI.OpenXmlFormats.Dml
                 this.endCxn.Write(sw, "endCxn");
             if (this.extLst != null)
                 this.extLst.Write(sw, "extLst");
-            sw.Write(string.Format("</a:{0}>", nodeName));
+            sw.Write(string.Format("</xdr:{0}>", nodeName));
         }
 
 
@@ -1003,10 +1003,6 @@ namespace NPOI.OpenXmlFormats.Dml
 
         public CT_NonVisualConnectorProperties()
         {
-            this.extLstField = new CT_OfficeArtExtensionList();
-            this.endCxnField = new CT_Connection();
-            this.stCxnField = new CT_Connection();
-            this.cxnSpLocksField = new CT_ConnectorLocking();
         }
 
         [XmlElement(Order = 0)]
@@ -2093,7 +2089,7 @@ namespace NPOI.OpenXmlFormats.Dml
                 XmlHelper.WriteAttribute(sw, "bwMode", this.bwMode.ToString());
             sw.Write(">");
             if (this.xfrm != null)
-                this.xfrm.Write(sw, "xfrm");
+                this.xfrm.Write(sw, "a:xfrm");
             if (this.custGeom != null)
                 this.custGeom.Write(sw, "custGeom");
             if (this.prstGeom != null)

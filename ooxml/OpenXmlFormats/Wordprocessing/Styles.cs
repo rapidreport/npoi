@@ -106,15 +106,18 @@ namespace NPOI.OpenXmlFormats.Wordprocessing
 
         public IList<CT_Style> GetStyleList()
         {
+            if(this.styleField==null)
+                this.styleField = new List<CT_Style>();
             return style;
         }
 
-        public void AddNewStyle()
+        public CT_Style AddNewStyle()
         {
             CT_Style s = new CT_Style();
             if (styleField == null)
                 styleField = new List<CT_Style>();
             styleField.Add(s);
+            return s;
         }
 
         public void SetStyleArray(int pos, CT_Style cT_Style)
@@ -217,6 +220,17 @@ namespace NPOI.OpenXmlFormats.Wordprocessing
         {
             this.rPrDefaultField = new CT_RPrDefault();
             return this.rPrDefaultField;
+        }
+
+        public bool IsSetPPrDefault()
+        {
+            return this.pPrDefaultField != null;
+        }
+
+        public CT_PPrDefault AddNewPPrDefault()
+        {
+            this.pPrDefaultField = new CT_PPrDefault();
+            return this.pPrDefaultField;
         }
     }
 
@@ -331,6 +345,17 @@ namespace NPOI.OpenXmlFormats.Wordprocessing
             {
                 this.pPrField = value;
             }
+        }
+
+        public CT_PPr AddNewPPr()
+        {
+            this.pPrField = new CT_PPr();
+            return this.pPrField;
+        }
+
+        public bool IsSetPPr()
+        {
+            return this.pPrField != null;
         }
     }
 
@@ -564,6 +589,11 @@ namespace NPOI.OpenXmlFormats.Wordprocessing
                 this.lsdExceptionField = new List<CT_LsdException>();
             this.lsdExceptionField.Add(lsd);
             return lsd;
+        }
+
+        public int SizeOfLsdExceptionArray()
+        {
+            return lsdExceptionField == null ? 0 : lsdExceptionField.Count;
         }
     }
 
@@ -1163,7 +1193,7 @@ namespace NPOI.OpenXmlFormats.Wordprocessing
 
         public bool IsSetName()
         {
-			return this.name != null;
+            return this.name != null;
         }
     }
     [Serializable]
@@ -2143,8 +2173,7 @@ namespace NPOI.OpenXmlFormats.Wordprocessing
         {
             sw.Write(string.Format("<w:{0}", nodeName));
             XmlHelper.WriteAttribute(sw, "w:val", this.val.ToString());
-            sw.Write(">");
-            sw.Write(string.Format("</w:{0}>", nodeName));
+            sw.Write("/>");
         }
 
 
