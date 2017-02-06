@@ -324,7 +324,7 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
             ctObj.iterate = XmlHelper.ReadBool(node.Attributes["iterate"]);
             ctObj.iterateCount = XmlHelper.ReadUInt(node.Attributes["iterateCount"]);
             ctObj.iterateDelta = XmlHelper.ReadDouble(node.Attributes["iterateDelta"]);
-            ctObj.fullPrecision = XmlHelper.ReadBool(node.Attributes["fullPrecision"]);
+            ctObj.fullPrecision = XmlHelper.ReadBool(node.Attributes["fullPrecision"], true);
             ctObj.calcCompleted = XmlHelper.ReadBool(node.Attributes["calcCompleted"]);
             ctObj.calcOnSave = XmlHelper.ReadBool(node.Attributes["calcOnSave"]);
             ctObj.concurrentCalc = XmlHelper.ReadBool(node.Attributes["concurrentCalc"]);
@@ -339,7 +339,8 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
         {
             sw.Write(string.Format("<{0}", nodeName));
             XmlHelper.WriteAttribute(sw, "calcId", this.calcId);
-            XmlHelper.WriteAttribute(sw, "calcMode", this.calcMode.ToString());
+            if(calcMode== ST_CalcMode.auto)
+                XmlHelper.WriteAttribute(sw, "calcMode", this.calcMode.ToString());
             XmlHelper.WriteAttribute(sw, "fullCalcOnLoad", this.fullCalcOnLoad);
             XmlHelper.WriteAttribute(sw, "refMode", this.refMode.ToString());
             XmlHelper.WriteAttribute(sw, "iterate", this.iterate);

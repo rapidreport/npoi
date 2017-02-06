@@ -95,7 +95,7 @@ namespace NPOI.XSSF.UserModel
                 int prevNum = row.LastCellNum;
                 if (prevNum != -1)
                 {
-                    _cellNum = row.GetCell(prevNum - 1).ColumnIndex + 1;
+                    _cellNum = (row as XSSFRow).GetCell(prevNum - 1, MissingCellPolicy.RETURN_NULL_AND_BLANK).ColumnIndex + 1;
                 }
             }
             _sharedStringSource = ((XSSFWorkbook)row.Sheet.Workbook).GetSharedStringSource();
@@ -210,6 +210,8 @@ namespace NPOI.XSSF.UserModel
                     case CellType.Numeric:
                         if (_cell.IsSetV())
                         {
+                            if (string.IsNullOrEmpty(_cell.v))
+                                return 0.0;
                             try
                             {
                                 return Double.Parse(_cell.v, CultureInfo.InvariantCulture);
@@ -379,6 +381,11 @@ namespace NPOI.XSSF.UserModel
             {
                 SetCellType(CellType.Blank);
                 return;
+            }
+
+            if (str.Length > SpreadsheetVersion.EXCEL2007.MaxTextLength)
+            {
+                throw new ArgumentException("The maximum length of cell contents (text) is 32,767 characters");
             }
             CellType cellType = CellType;
             switch (cellType)
@@ -840,7 +847,7 @@ namespace NPOI.XSSF.UserModel
                         FormatBase sdf = new SimpleDateFormat("dd-MMM-yyyy");
                         return sdf.Format(DateCellValue, CultureInfo.CurrentCulture);
                     }
-                    return NumericCellValue + "";
+                    return NumericCellValue.ToString();
                 case CellType.String:
                     return RichStringCellValue.ToString();
                 default:
@@ -947,7 +954,8 @@ namespace NPOI.XSSF.UserModel
         }
 
         /// <summary>
-        /// Returns hyperlink associated with this cell
+        /// Get or set hyperlink associated with this cell
+        /// If the supplied hyperlink is null on setting, the hyperlink for this cell will be removed.
         /// </summary>
         public IHyperlink Hyperlink
         {
@@ -957,6 +965,11 @@ namespace NPOI.XSSF.UserModel
             }
             set 
             {
+                if (value == null)
+                {
+                    RemoveHyperlink();
+                    return;
+                }
                 XSSFHyperlink link = (XSSFHyperlink)value;
 
                 // Assign to us
@@ -967,6 +980,13 @@ namespace NPOI.XSSF.UserModel
             }
         }
 
+        /**
+         * Removes the hyperlink for this cell, if there is one.
+         */
+        public void RemoveHyperlink()
+        {
+            ((XSSFSheet)Sheet).RemoveHyperlink(_row.RowNum, _cellNum);
+        }
         /**
          * Returns the xml bean containing information about the cell's location (reference), value,
          * data type, formatting, and formula
