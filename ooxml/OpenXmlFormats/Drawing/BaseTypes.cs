@@ -1243,7 +1243,7 @@ namespace NPOI.OpenXmlFormats.Dml
         {
             CT_PositiveFixedPercentage obj = new CT_PositiveFixedPercentage();
             this.itemsElementNameField.Add(EG_ColorTransform.shade);
-            this.itemsValueField.Add(null);
+            this.itemsValueField.Add("0");
             return obj;
         }
         public static CT_SchemeColor Parse(XmlNode node, XmlNamespaceManager namespaceManager)

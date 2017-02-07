@@ -51,6 +51,19 @@ namespace NPOI.OpenXmlFormats.Spreadsheet
             }
         }
 
+        public CT_BorderPr Copy()
+        {
+            CT_BorderPr obj = new CT_BorderPr();
+            if (IsSetColor())
+            {
+                obj.color = color.Copy();
+            }
+            if (IsSetStyle())
+            {
+                obj.style = style;
+            }
+            return obj;
+        }
 
         public CT_BorderPr()
         {
